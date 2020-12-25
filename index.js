@@ -113,6 +113,27 @@ client.on('message', message => {
   //message.react('✋');
   //message.react('😑');
 
+    if (message.content === `${prefix}reset status`) {
+        client.user.setActivity();
+    }
+    if (message.content === `${prefix}status online`) {
+        client.user.setPresence({ status: "online" });
+    }
+    if (message.content === `${prefix}status idle`) {
+        client.user.setPresence({ status: "idle" });
+    }
+    if (message.content === `${prefix}status dnd`) {
+        client.user.setPresence({ status: "dnd" });
+    }
+    if (message.content.includes(`${prefix}play`)) {
+        //message.channel.send(`${args[0]}`);
+        const new_status = message.content.substring(6);
+
+        return client.user.setPresence({ activity: { name: new_status}});
+
+
+    }
+
   client.channels.cache.get('761023739592048649').send(`${message.author.username} in ${message.channel}: ${message.content}`);//logs messages
   console.log(`${message.author.username} in ${message.channel}: ${message.content}`)
   if (message.content === `${prefix}off`) {
@@ -153,6 +174,37 @@ client.on('message', message => {
   if (message.content.includes(`${prefix}embed`)) {
     message.channel.send(exampleEmbed);
   }
+
+    if (message.content.includes(`${prefix}b`)) {
+        message.channel.send("Beep").then((sentMessage) => sentMessage.edit("Boop!"))
+    }
+
+
+    if (message.content.includes(`${prefix}ok`)) {
+        message.react('👍').then(r => {
+            message.react('👎');
+        });
+        var page = 0;
+        message.channel.send(page);
+
+        message.awaitReactions((reaction, user) => user.id == message.author.id && (reaction.emoji.name == '👍' || reaction.emoji.name == '👎'),
+            { max: 1, time: 30000 }).then(collected => {
+            if (collected.first().emoji.name == '👍') {
+                page++;
+                message.channel.send(page);
+                //client.destroy();
+            }
+            else {
+                page--;
+                message.channel.send(page);
+            }
+        }).catch(() => {
+            //message.reply('No reaction after 30 seconds, operation canceled');
+        });
+    }
+
+
+
 
   if (message.content.includes(`${prefix}verse`)) {
     getVOTD('https://www.verseoftheday.com/');
@@ -250,6 +302,7 @@ client.on('message', message => {
 
 
   if (message.content.includes(`${prefix}info`)) {
+    message.channel.startTyping();
     const args = message.content.slice(prefix.length).trim().split(/ +/);
     console.log(args);
     var url = `${args[1]}`;
@@ -284,6 +337,7 @@ client.on('message', message => {
               .setFooter(footerText, youVersionLogo);
 
           message.channel.send(planEmbed);
+          message.channel.stopTyping();
 
 
         });
@@ -291,6 +345,7 @@ client.on('message', message => {
 
 
     if (message.content.includes(`${prefix}search`)) {
+        message.channel.startTyping();
         const args = message.content.slice(prefix.length).trim().split(/ +/);
         console.log(args);
         //var url = `${args[1]}`;
@@ -344,7 +399,12 @@ client.on('message', message => {
                         .setTimestamp()
                         .setFooter(footerText, youVersionLogo);
 
-                    message.channel.send(planEmbed);
+                    message.channel.send(planEmbed).then(sentEmbed => {
+                        sentEmbed.react("⬅")
+                        sentEmbed.react("➡")
+                    });
+                    
+                    message.channel.stopTyping();
 
 
                 });
