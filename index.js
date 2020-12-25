@@ -289,6 +289,68 @@ client.on('message', message => {
         });
   }
 
+
+    if (message.content.includes(`${prefix}search`)) {
+        const args = message.content.slice(prefix.length).trim().split(/ +/);
+        console.log(args);
+        //var url = `${args[1]}`;
+
+        var url = `https://www.bible.com/search/plans?q=${args[1]}`;
+        for(i = 2; i < args.length; i++){
+            var temp = `%20${args[i]}`;
+            url = url.concat(temp);
+        }
+        console.log(url)
+
+
+        axios.get(url)
+            .then((res) => {
+                const { document } = (new JSDOM(res.data)).window;
+                var newurl = document.querySelector("#current-ui-view > article > div:nth-child(2) > div.columns.medium-9 > div > ul.search-result > li:nth-child(1) > a").href;
+                console.log(newurl);
+                var firstpart = `https://www.bible.com`;
+                var searchedUrl = firstpart.concat(newurl);
+                //newurl.substring(15,20);
+                console.log(searchedUrl);
+                //return searchedUrl;
+
+
+            axios.get(searchedUrl)
+                .then((res) => {
+                    const { document } = (new JSDOM(res.data)).window;
+                    const youVersionLogo = `https://i.pinimg.com/originals/17/e3/70/17e370ff54f49281f212e8a9d34e2996.png`;
+                    var planTitle = document.querySelector("#react-app-PlanDiscovery > div > div.row.collapse.about-plan.horizontal-center > div > article > div:nth-child(2) > div.columns.large-8.medium-8 > h1").textContent;
+                    var planDescription = document.querySelector("#react-app-PlanDiscovery > div > div.row.collapse.about-plan.horizontal-center > div > article > div:nth-child(2) > div.columns.large-8.medium-8 > p.plan_about").textContent;
+                    var planNumber = searchedUrl.substring(36,41);
+                    console.log(planNumber);
+                    //message.channel.send(planNumber);
+                    var planLogo = `https://imageproxy.youversionapi.com/https://s3.amazonaws.com/yvplans/${planNumber}/720x405.jpg`;
+                    var numberOfDays = document.querySelector("#react-app-PlanDiscovery > div > div.row.collapse.about-plan.horizontal-center > div > article > div:nth-child(2) > div.columns.large-8.medium-8 > p.plan_length").textContent;
+                    var planAuthor = `YouVersion`;
+                    var allPlans = `https://www.bible.com/reading-plans`;
+                    var footerText = document.querySelector("#react-app-PlanDiscovery > div > div.row.collapse.about-plan.horizontal-center > div > article > div:nth-child(2) > div.columns.large-8.medium-8 > p:nth-child(6)").textContent;
+                    //var footerImage= `https://i.pinimg.com/originals/17/e3/70/17e370ff54f49281f212e8a9d34e2996.png`;
+                    //var url;
+
+                    const planEmbed = new Discord.MessageEmbed()
+                        .setColor('#00ff99')
+                        .setTitle(planTitle)
+                        .setURL(url)
+                        .setAuthor(planAuthor, youVersionLogo, allPlans)
+                        .setDescription(planDescription)
+                        .setThumbnail(youVersionLogo)
+                        .addField('Time', numberOfDays, true)
+                        .setImage(planLogo)
+                        .setTimestamp()
+                        .setFooter(footerText, youVersionLogo);
+
+                    message.channel.send(planEmbed);
+
+
+                });
+            });
+    }
+
   //client.users.cache.get(`${args[0]}`).send(message.content.substring(args[0].length + 4));
 
   //message = args[0];
