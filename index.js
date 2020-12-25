@@ -335,7 +335,7 @@ client.on('message', message => {
                     const planEmbed = new Discord.MessageEmbed()
                         .setColor('#00ff99')
                         .setTitle(planTitle)
-                        .setURL(url)
+                        .setURL(searchedUrl)
                         .setAuthor(planAuthor, youVersionLogo, allPlans)
                         .setDescription(planDescription)
                         .setThumbnail(youVersionLogo)
